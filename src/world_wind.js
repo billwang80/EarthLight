@@ -4,10 +4,9 @@ var wwd = new WorldWind.WorldWindow("canvasOne");
 wwd.addLayer(new WorldWind.BMNGOneImageLayer());
 wwd.addLayer(new WorldWind.BMNGLandsatLayer());
 wwd.addLayer(new WorldWind.BingAerialWithLabelsLayer(null));
-wwd.addLayer(new WorldWind.CompassLayer());
+//wwd.addLayer(new WorldWind.CompassLayer());
 wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
-wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
-wwd
+//wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
 
 var serviceAddress = "https://neo.sci.gsfc.nasa.gov/wms/wms?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0";
 var layerName = "MOD14A1_M_FIRE";
