@@ -2,16 +2,125 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-    </head>
-    <body>
-        <canvas id="canvasOne" width="1024" height="768" style="background-color: black">
-            Your browser does not support HTML5 Canvas.
-        </canvas>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-        <script 
-        src="https://files.worldwind.arc.nasa.gov/artifactory/web/0.9.0/worldwind.min.js"
-        type="text/javascript"></script>
-        <script src="../src/world_wind.js" type="text/javascript"></script>
-        <button id="test_button" >Button</button>
+        <script src="https://files.worldwind.arc.nasa.gov/artifactory/web/0.9.0/worldwind.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+        <script src="../src/earth_model.js" type="text/javascript"></script>
+        <title>EarthLight</title>
+    </head>
+    <body style="background-color: #2B2D2F;"> 
+        <!-- NavBar -->
+
+        <!-- Content -->
+        <div class="container-fluid">
+            <div>
+                <h1 style="text-align: center; color: aquamarine; margin-top: 32px; font-size: 3.5em;">EarthLight</h1>
+            </div>
+            <div class="row">
+                <!-- Sidebar -->
+                <div id="left-sidebar" class="col-sm-4 col-md-3 sidebar-left tab-content">
+                    <!-- Layers tab -->
+                    <div id="layers" class="tab-pane" role="tabpanel">
+                        <div class="section-heading">
+                            <h4 class="sub-header" style="color: darkturquoise; text-align: center; font-size: 1.5em;">
+                                <span class="glyphicon glyphicon-list" aria-hidden="true" style="padding-right:5px;"></span>
+                                Layer Menu 
+                                <a class="section-toggle" data-toggle="collapse" href="#layers-body">
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="layers-body" class="section-body collapse in" style="text-align: center; margin: 0;">
+                            <!-- layer buttons bound to 'layers' observableArray -->
+                            <!-- the button's active class is bound to 'layerEnabled' observable -->
+                            <div class="list-group" data-bind="foreach: layers">
+                                <button class="list-group-item btn btn-block" data-bind="click: $root.toggleLayer, css: {active: $data.layerEnabled}" style="background-color: aquamarine; font-size: 1em;">
+                                    <span data-bind="text: $data.displayName"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /Layer -->
+                    <!-- Markers tab -->
+                    <div id="markers" class="tab-pane" role="tabpanel">
+                        <div class="section-heading">
+                            <h4 class="sub-header">
+                                <span class="glyphicon glyphicon-map-marker" aria-hidden="true" 
+                                        style="padding-right:5px;"></span>
+                                <a class="section-toggle" data-toggle="collapse" href="#markers-body"></a>
+                            </h4>
+                        </div>
+                        <div id="markers-body" class="section-body collapse in">
+                            <!-- Bind the list to the 'markers' observableArray -->
+                            <ul id="markers-list" data-bind="foreach: $root.markers" style="text-align: center;">
+                                <li class="btn-group btn-block btn-group-sm">
+                                    <!-- Goto Button -->
+                                    <button type="button" class="btn btn-default" data-bind="click: $root.gotoMarker" style="text-align: center; background-color: aquamarine;">
+                                        <span><img width="16px" height="16px" data-bind="attr:{src: $data.attributes.imageSource}" />  </span>
+                                        <span data-bind="text: $data.label"></span>
+                                    </button>
+                                    <!-- Delete Button -->
+                                    <button type="button" class="btn btn-default glyphicon glyphicon-trash" data-bind="click: $root.removeMarker" style="text-align: center; background-color: lightcoral;">Delete</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /Markers -->
+                </div>
+                <!-- /Sidebar -->
+                <!-- Main Content -->
+                <div id="globe" class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 main" style="height: 90vh; width: 97vw">
+                    <div class="row" style="height: 100%;">
+                        <!-- Globe -->
+                        <div class="col-md-12" style="height: 100%;">
+                            <div class="section-heading" style="width: 100%">
+                                <h4 class="sub-header">
+                                    <span class="glyphicon glyphicon-globe" aria-hidden="true" style="padding-right:5px;"></span>
+                                    <!-- Add Marker button and palette -->
+                                    <span class="btn-group" style="float: right; text-align: center;">
+                                        <button type="button" 
+                                                class="btn btn-primary btn-sm"
+                                                style="padding-top: 0; padding-bottom: 0; background-color: aquamarine; font-size: 1.3em; display: inline-block; vertical-align: middle;"
+                                                data-bind="click: $root.addMarker">Place Marker
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                            <img width="28px" height="28px;" 
+                                                    data-bind="attr:{src: $root.selectedMarkerImage}"/>
+                                        </button>
+                                        <!-- <button class="marker_delete">Delete</button> -->
+                                    </span>
+                                </h4>
+                            </div>
+                            <!-- NASA Web World Wind -->
+                            <canvas id="canvasOne" style="width: 100%; height: 100%; 
+                                    background-color: #1F4663; 
+                                    border:1px solid #000000;" data-bind="style: { cursor: dropIsArmed() ? 'crosshair' : 'default' }">
+                                Try Chrome or FireFox.
+                            </canvas>
+                            <!-- NASA Web World Wind -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>        
+        <!-- Edit Marker Modal -->
+        <div class="modal fade" id="editMarkerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <!--             <span class="input-group-addon" id="name-addon">Name</span>
+                                        <input type="text" class="form-control" id="marker-name" aria-describedby="name-addon">
+                            -->          
+                        </div>          
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <canvas id="canvasOne" width="1024" height="768" style="background-color: black">
+            Your browser does not support HTML5 Canvas.
+        </canvas> -->
     </body>
 </html>
