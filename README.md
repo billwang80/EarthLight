@@ -1,2 +1,2 @@
 # EarthLight
-Lightning Mapper
+Chlorophyll Mapper
